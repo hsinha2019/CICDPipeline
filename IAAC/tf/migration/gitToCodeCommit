@@ -1,0 +1,20 @@
+## For the Code Commit Repository created generate the user from IAM
+## Use these credentials to commit code to Code Commit Repository
+
+## For Migration of content from Local Repository to Code Commit
+
+git clone --mirror https://github.com/hsinha2019/MyDemoApp.git awsCodeCommitRepo/
+
+## From that directory
+
+git push https://git-codecommit.us-east-1.amazonaws.com/v1/repos/MyTestRepository --all
+
+##From Local Repository
+##This will push code from Local to Code Commit Repository
+
+git remote set-url --add --push origin https://git-codecommit.us-east-1.amazonaws.com/v1/repos/MyTestRepository
+
+##This will push code from Local to Git Repository
+## Now local Repository code can be pushed into 2 Repositories i.e. Code Commit and git
+
+git remote set-url --add --push origin https://github.com/hsinha2019/MyDemoApp.git
