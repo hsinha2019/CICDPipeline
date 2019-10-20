@@ -1,4 +1,4 @@
-resource "aws_s3_bucket" "Dev" {
+resource "aws_s3_bucket" "demo" {
   bucket = "my-tf-test-bucket1"
   acl    = "private"
 

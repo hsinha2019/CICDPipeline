@@ -3,26 +3,19 @@ provider "aws" {
   region     = "us-east-1"
 }
 
-data "local_file" "pem"{
-  filename = "/Users/Hershey/AWS/Keys/DemoApp.pem"
-}
-
-resource "local_file" "pem"{
-  content = "${data.local_file.pem.content}"
-  filename = "/Users/Hershey/AWS/Keys/DemoApp.pem"
-}
 
 resource "aws_instance" "demoDeployInstance" {
-  ami           = "ami-2757f631"
+  ami           = "ami-0b69ea66ff7391e80"
   instance_type = "t2.micro"
-  ##key_name      = "${local_file.pem.filename}"
-  ##key_name      = file("$/Users/Hershey/AWS/Keys/DemoApp.pem")
+  key_name      = "${aws_key_pair.NewDemoApp.key_name}"
+  security_groups = ["${aws_security_group.allow_http_ssh.name}"]
+
 
   user_data = <<-EOF
               #!/bin/bash
-              sudo yum update
-              sudo yum install ruby
-              sudo yum install wget
+              sudo yum -y update
+              sudo yum -y install ruby
+              sudo yum -y install wget
               cd /home/ec2-user
               wget https://aws-codedeploy-us-east-1.s3.amazonaws.com/latest/install
               chmod +x ./install

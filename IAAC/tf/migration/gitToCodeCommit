@@ -7,12 +7,12 @@ git clone --mirror https://github.com/hsinha2019/MyDemoApp.git awsCodeCommitRepo
 
 ## From that directory
 
-git push https://git-codecommit.us-east-1.amazonaws.com/v1/repos/MyTestRepository --all
+git push https://git-codecommit.us-east-1.amazonaws.com/v1/repos/mytestrepository --all
 
 ##From Local Repository
 ##This will push code from Local to Code Commit Repository
 
-git remote set-url --add --push origin https://git-codecommit.us-east-1.amazonaws.com/v1/repos/MyTestRepository
+git remote set-url --add --push origin https://git-codecommit.us-east-1.amazonaws.com/v1/repos/mytestrepository
 
 ##This will push code from Local to Git Repository
 ## Now local Repository code can be pushed into 2 Repositories i.e. Code Commit and git
