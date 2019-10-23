@@ -1,6 +1,6 @@
 resource "aws_s3_bucket" "demo" {
-  bucket = "my-tf-test-bucket1"
-  acl    = "private"
+  bucket = "democodepipeline2019forp15"
+  acl    = "public-read-write"
 
   tags = {
     Name        = "My bucket"

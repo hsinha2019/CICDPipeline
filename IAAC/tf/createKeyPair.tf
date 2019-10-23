@@ -26,6 +26,9 @@ resource "aws_key_pair" "NewDemoApp" {
 
 /*
 Create a Key Pair in AWS. Download the pem file
+
+chmod 0600 /Users/Hershey/AWS/Keys/NewDemoApp.pem
+ssh-keygen -f /Users/Hershey/AWS/Keys/NewDemoApp.pem -y > /Users/Hershey/AWS/Keys/NewDemoApp.pub
 Execute ssh-keygen -f private.pem -y > public.pub
 This generates the public key from the private key.
 

@@ -2,11 +2,9 @@
 ## Use these credentials to commit code to Code Commit Repository
 
 ## For Migration of content from Local Repository to Code Commit
-
+mkdir awsCodeCommitRepo
 git clone --mirror https://github.com/hsinha2019/MyDemoApp.git awsCodeCommitRepo/
-
-## From that directory
-
+cd awsCodeCommitRepo
 git push https://git-codecommit.us-east-1.amazonaws.com/v1/repos/mytestrepository --all
 
 ##From Local Repository
