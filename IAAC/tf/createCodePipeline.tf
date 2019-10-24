@@ -52,7 +52,7 @@ EOF
 }
 
 resource "aws_codepipeline" "codepipeline" {
-  name     = "demoPipeline"
+  name     = "InPlacePipeline"
   role_arn = "${aws_iam_role.codepipeline_role.arn}"
 
   artifact_store {
@@ -93,6 +93,53 @@ resource "aws_codepipeline" "codepipeline" {
       configuration = {
         ApplicationName = "${aws_codedeploy_app.demoAppDeploy.name}"
         DeploymentGroupName = "${aws_codedeploy_deployment_group.demoAppDeploy.deployment_group_name}"
+      }
+    }
+  }
+}
+
+resource "aws_codepipeline" "bluegreencodepipeline" {
+  name     = "BlueGreenPipeline"
+  role_arn = "${aws_iam_role.codepipeline_role.arn}"
+
+  artifact_store {
+    location = "${aws_s3_bucket.demo.bucket}"
+    type     = "S3"
+  }
+
+  stage {
+    name = "Source"
+
+    action {
+      name             = "Source"
+      category         = "Source"
+      owner            = "AWS"
+      provider         = "CodeCommit"
+      version          = "1"
+      output_artifacts = ["NO_ARTIFACTS"]
+
+      configuration = {
+        RepositoryName   = "${aws_codecommit_repository.FirstApplication.repository_name}"
+        BranchName = "master"
+        PollForSourceChanges = "true"
+      }
+    }
+  }
+
+  stage {
+    name = "Deploy"
+
+    action {
+      name            = "Deploy"
+      category        = "Deploy"
+      owner           = "AWS"
+      provider        = "CodeDeploy"
+      input_artifacts = ["NO_ARTIFACTS"]
+      version         = "1"
+
+      configuration = {
+        ApplicationName = "${aws_codedeploy_app.demoAppDeploy.name}"
+        DeploymentGroupName = "${aws_codedeploy_deployment_group.demoBlueGreenAppDeploy.deployment_group_name}"
       }
     }
   }

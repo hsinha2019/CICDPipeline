@@ -35,7 +35,7 @@ resource "aws_iam_role_policy_attachment" "AmazonS3FullAccess1" {
 
 resource "aws_codedeploy_app" "demoAppDeploy" {
   compute_platform = "Server"
-  name = "demoAppDeploy"
+  name = "PHPApp"
 }
 
 resource "aws_sns_topic" "demoAppDeploy" {
@@ -51,9 +51,11 @@ resource "aws_codedeploy_deployment_config" "codeDeployConfig" {
   }
 }
 
+
+
 resource "aws_codedeploy_deployment_group" "demoAppDeploy" {
   app_name              = "${aws_codedeploy_app.demoAppDeploy.name}"
-  deployment_group_name = "demoAppDeployGroup"
+  deployment_group_name = "InPlaceAppDG"
   service_role_arn      = "${aws_iam_role.codedeploy_role.arn}"
 
   /*deployment_style {
@@ -88,7 +90,7 @@ resource "aws_codedeploy_deployment_group" "demoAppDeploy" {
     ec2_tag_filter {
       key   = "Name"
       type  = "KEY_AND_VALUE"
-      value = "CodeDeployInstance"
+      value = "InPlaceDeploy"
     }
   }
 
@@ -103,3 +105,59 @@ resource "aws_codedeploy_deployment_group" "demoAppDeploy" {
       events  = ["DEPLOYMENT_FAILURE"]
     }
   }
+
+
+  resource "aws_codedeploy_deployment_group" "demoBlueGreenAppDeploy" {
+    app_name              = "${aws_codedeploy_app.demoAppDeploy.name}"
+    deployment_group_name = "BlueGreenAppDG"
+    service_role_arn      = "${aws_iam_role.codedeploy_role.arn}"
+    autoscaling_groups    = ["${aws_autoscaling_group.demoASG.name}"]
+
+    deployment_style {
+      deployment_option = "WITH_TRAFFIC_CONTROL"
+      deployment_type   = "BLUE_GREEN"
+    }
+
+    load_balancer_info {
+      elb_info {
+        name = "${aws_elb.demoClassicLoadBal.name}"
+      }
+    }
+
+    blue_green_deployment_config {
+      deployment_ready_option {
+        action_on_timeout    = "CONTINUE_DEPLOYMENT"
+        #wait_time_in_minutes = 5
+      }
+
+      green_fleet_provisioning_option {
+        action = "COPY_AUTO_SCALING_GROUP"
+      }
+
+      terminate_blue_instances_on_deployment_success {
+        action = "TERMINATE"
+        termination_wait_time_in_minutes = "5"
+      }
+    }
+
+    deployment_config_name = "CodeDeployDefault.AllAtOnce"
+
+    ec2_tag_set {
+      ec2_tag_filter {
+        key   = "Name"
+        type  = "KEY_AND_VALUE"
+        value = "BlueGreenDeploy"
+      }
+    }
+
+      trigger_configuration {
+      trigger_events     = ["DeploymentFailure"]
+      trigger_name       = "deployAppTrigger"
+      trigger_target_arn = "${aws_sns_topic.demoAppDeploy.arn}"
+      }
+
+      auto_rollback_configuration {
+        enabled = true
+        events  = ["DEPLOYMENT_FAILURE"]
+      }
+    }
