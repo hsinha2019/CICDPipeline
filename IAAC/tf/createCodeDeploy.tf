@@ -58,31 +58,6 @@ resource "aws_codedeploy_deployment_group" "demoAppDeploy" {
   deployment_group_name = "InPlaceAppDG"
   service_role_arn      = "${aws_iam_role.codedeploy_role.arn}"
 
-  /*deployment_style {
-    deployment_option = "WITH_TRAFFIC_CONTROL"
-    deployment_type   = "BLUE_GREEN"
-  }
-
-  load_balancer_info {
-    elb_info {
-      name = "classicLoadDemoBalancer"
-    }
-  }
-
-  blue_green_deployment_config {
-    deployment_ready_option {
-      action_on_timeout    = "STOP_DEPLOYMENT"
-      wait_time_in_minutes = 60
-    }
-
-    green_fleet_provisioning_option {
-      action = "DISCOVER_EXISTING"
-    }
-
-    terminate_blue_instances_on_deployment_success {
-      action = "KEEP_ALIVE"
-    }
-  }*/
 
   deployment_config_name = "${aws_codedeploy_deployment_config.codeDeployConfig.id}"
 
@@ -111,16 +86,27 @@ resource "aws_codedeploy_deployment_group" "demoAppDeploy" {
     app_name              = "${aws_codedeploy_app.demoAppDeploy.name}"
     deployment_group_name = "BlueGreenAppDG"
     service_role_arn      = "${aws_iam_role.codedeploy_role.arn}"
-    autoscaling_groups    = ["${aws_autoscaling_group.demoASG.name}"]
+    autoscaling_groups    = ["${aws_autoscaling_group.demoAppASG.name}"]
 
     deployment_style {
       deployment_option = "WITH_TRAFFIC_CONTROL"
       deployment_type   = "BLUE_GREEN"
     }
 
-    load_balancer_info {
+    /*load_balancer_info {
       elb_info {
         name = "${aws_elb.demoClassicLoadBal.name}"
+      }
+    }*/
+
+    load_balancer_info {
+      /*
+      This is required for Classic Load balancers
+      elb_info {
+        name = "${aws_lb.demoAppLB.name}"
+      }*/
+      target_group_info {
+        name = "${aws_lb_target_group.demoTargetGroup.name}"
       }
     }
 

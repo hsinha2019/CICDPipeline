@@ -3,13 +3,36 @@ resource "aws_autoscaling_group" "demoASG" {
   launch_configuration = "${aws_launch_configuration.demoLaunchConfig.name}"
   min_size             = 1
   max_size             = 3
-
+  force_delete         = "true"
   availability_zones   = ["us-east-1a", "us-east-1b", "us-east-1c","us-east-1d", "us-east-1e", "us-east-1f"]
   default_cooldown     = 5
   health_check_grace_period  = 10
   health_check_type    = "EC2"
   desired_capacity     = 2
   load_balancers       = ["${aws_elb.demoClassicLoadBal.name}"]
+  tags = [
+          {
+          "key"="Name"
+          "value"="BlueGreenDeploy"
+          "propagate_at_launch"="true"}]
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "aws_autoscaling_group" "demoAppASG" {
+  name                 = "demoAppAutoScaling"
+  launch_configuration = "${aws_launch_configuration.demoLaunchConfig.name}"
+  min_size             = 2
+  max_size             = 3
+  force_delete         = "true"
+  availability_zones   = ["us-east-1a", "us-east-1b", "us-east-1c","us-east-1d", "us-east-1e", "us-east-1f"]
+  default_cooldown     = 5
+  health_check_grace_period  = 10
+  health_check_type    = "EC2"
+  desired_capacity     = 2
+  #load_balancers       = ["${aws_elb.demoClassicLoadBal.name}"]
+  target_group_arns    = ["${aws_lb_target_group.demoTargetGroup.arn}"]
   tags = [
           {
           "key"="Name"
